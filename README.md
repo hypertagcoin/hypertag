@@ -11,9 +11,11 @@ Website: [hypertag.trade](https://hypertag.trade) · License: [MIT](LICENSE)
 ## Features
 
 - **Cashtag chips on posts:** every `$BTC`, `$ETH`, `$HYPE`… listed on Hyperliquid gets the live price, its 24h change and **Long / Short** buttons. `$PEPE`, `$BONK` and similar map to `kPEPE`, `kBONK`.
+- **Cashtag hover card:** hover any `$cashtag` link for an X-style card with the price, a 24h chart, funding, open interest, volume, your position and Long / Short buttons.
+- **Trade button in the action bar:** next to Reply / Repost / Like on posts with cashtags. It opens a menu with one-tap market presets (Long or Short $25 / $50 / $100, tap twice to confirm) and a link to the full trade sheet.
 - **Trade sheet:** Market or Limit, Long or Short, size in USD with 10/25/50%/Max, a leverage slider, Cross or Isolated margin, optional take profit / stop loss, and an order value, margin and fee preview. Your open position shows with a two-step Close.
 - **Sidebar card:** account value, PnL, available margin and open positions with one-tap close, in X's right column.
-- **Popup:** account overview, positions, default size / leverage / slippage, a Mainnet/Testnet switch, and toggles for the chips and the sidebar card.
+- **Popup:** account overview, positions, default size / leverage / slippage, a Mainnet/Testnet switch, and toggles for the chips, sidebar card, Trade button and hover card.
 - **Looks native:** follows your X display setting (Lights out, Dim or Default) and accent color.
 
 ![Trade sheet](store/screenshots/2-trade-sheet.png)

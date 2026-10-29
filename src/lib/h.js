@@ -22,7 +22,7 @@ export function h(tag, props, ...children) {
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-function svgEl(tag, attrs) {
+export function svgEl(tag, attrs) {
   const el = document.createElementNS(SVG_NS, tag);
   for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
   return el;
@@ -35,6 +35,7 @@ export const ICONS = {
   external: ['M14 4h6v6', 'M20 4l-9 9', 'M19 14v4.5A1.5 1.5 0 0 1 17.5 20h-12A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5H10'],
   key: ['M15.5 7.5a3.5 3.5 0 1 1-3.36 4.48L4 20H2v-3l8.02-8.02A3.5 3.5 0 0 1 15.5 7.5z', 'M16 10h.01'],
   copy: ['M9 9h10v10H9z', 'M5 15V5h10'],
+  trade: ['M3 17l6-6 4 4 8-8', 'M14 7h7v7'],
   alert: ['M12 8v5', 'M12 16.5h.01', 'M10.3 3.9L2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'],
 };
 

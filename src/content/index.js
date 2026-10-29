@@ -2,6 +2,7 @@
 import { rpc } from '../lib/rpc.js';
 import { startChips } from './chips.js';
 import { openConnect } from './connect.js';
+import { startHoverCard } from './hovercard.js';
 import { startSidebar } from './sidebar.js';
 import { refreshState, startPolling } from './store.js';
 import { initTheme } from './theme.js';
@@ -11,6 +12,7 @@ function main() {
   startPolling();
   startChips();
   startSidebar();
+  startHoverCard();
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'tt:state-changed') refreshState().catch(() => {});

@@ -3,7 +3,9 @@ import { h } from '../lib/h.js';
 import { CSS } from './styles.js';
 import { applyTheme } from './theme.js';
 
-export { ICONS, h, icon, spinner } from '../lib/h.js';
+export {
+  ICONS, h, icon, spinner, svgEl,
+} from '../lib/h.js';
 
 export function networkBadge(network) {
   return network === 'testnet' ? h('span', { class: 'badge badge-testnet' }, 'Testnet') : null;

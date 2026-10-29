@@ -154,6 +154,8 @@ function settingsView() {
     h('div', { class: 'grid3' }, size.el, lev.el, slip.el),
     toggle('Show Long / Short on posts', s.showChips, (v) => save({ showChips: v })),
     toggle('Show account card in sidebar', s.showSidebar, (v) => save({ showSidebar: v })),
+    toggle('Show Trade button on posts', s.showTradeButton, (v) => save({ showTradeButton: v })),
+    toggle('Show price card when hovering a $cashtag', s.showHoverCard, (v) => save({ showHoverCard: v })),
     msg);
 }
 

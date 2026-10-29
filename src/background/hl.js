@@ -139,6 +139,18 @@ export function getAccount(network, user) {
   });
 }
 
+/** Last 24h of 15-minute closes, for the hover card's mini chart. */
+export function getCandles(network, coin) {
+  return cached(`candles:${network}:${coin}`, 60_000, async () => {
+    const endTime = Date.now();
+    const rows = await info(network, {
+      type: 'candleSnapshot',
+      req: { coin, interval: '15m', startTime: endTime - 24 * 3600_000, endTime },
+    });
+    return (rows || []).map((r) => ({ t: r.t, c: Number(r.c) }));
+  });
+}
+
 export async function getAssetData(network, user, coin) {
   const d = await info(network, { type: 'activeAssetData', user, coin });
   return {

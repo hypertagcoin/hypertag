@@ -44,7 +44,7 @@
   });
   const state = () => ({
     network: 'mainnet', appUrl: 'https://app.hyperliquid.xyz', connected: { mainnet: connected, testnet: false },
-    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true },
+    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true, showHoverCard: true, showTradeButton: true },
     connection: connected ? { user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', agentAddress: '0x1111111111111111111111111111111111111111', method: 'wallet', createdAt: Date.now() } : null,
   });
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));

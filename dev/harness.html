@@ -100,7 +100,7 @@
   });
   const state = () => ({
     network: 'mainnet', appUrl: 'https://app.hyperliquid.xyz', connected: { mainnet: connected, testnet: false },
-    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true },
+    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true, showHoverCard: true, showTradeButton: true },
     connection: connected ? { user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', agentAddress: '0x1111111111111111111111111111111111111111', method: 'wallet', createdAt: Date.now() } : null,
   });
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -108,6 +108,11 @@
     'state:get': state,
     'markets:get': () => ({ network: 'mainnet', at: Date.now(), markets: markets.map((m) => ({ ...m, midPx: +(m.midPx * (1 + (Math.random() - 0.5) * 0.0008)).toPrecision(5) })) }),
     'account:get': () => (connected ? acct() : null),
+    'candles:get': ({ coin }) => {
+      const m = markets.find((x) => x.name === coin) || markets[0];
+      const now = Date.now();
+      return Array.from({ length: 96 }, (_, i) => ({ t: now - (96 - i) * 900e3, c: m.prevDayPx + (m.midPx - m.prevDayPx) * (i / 95) + Math.sin(i / 5) * m.midPx * 0.006 }));
+    },
     'asset:get': ({ coin }) => ({ coin, leverage: { type: 'cross', value: 20 }, availableToTrade: [8120.55, 8120.55], maxTradeSzs: [1, 1] }),
     'order:place': async (p) => { await wait(900); if (p.usd > 50000) throw new Error('Insufficient margin to place order.'); return { coin: p.coin, isBuy: p.isBuy, status: 'filled', totalSz: (p.usd / 81637).toFixed(5), avgPx: 81641 }; },
     'position:close': async ({ coin }) => { await wait(700); return { coin, status: 'filled', avgPx: 81630 }; },

@@ -4,7 +4,7 @@ import {
   APP_URLS, addressFromKey, buildApproveAgent, newAgentKey, recoverTypedDataSigner, splitSignature,
 } from '../lib/hyperliquid.js';
 import {
-  closePosition, exchange, getAccount, getAssetData, getMarkets, info, invalidate, placeOrder,
+  closePosition, exchange, getAccount, getAssetData, getCandles, getMarkets, info, invalidate, placeOrder,
 } from './hl.js';
 import * as store from './store.js';
 
@@ -61,6 +61,12 @@ const handlers = {
   'account:get': async () => {
     const { network, conn } = await active();
     return conn ? getAccount(network, conn.user) : null;
+  },
+
+  'candles:get': async ({ coin }) => {
+    const { network } = await active();
+    if (!/^[A-Za-z0-9:]{1,20}$/.test(String(coin))) throw new Error('Unknown market');
+    return getCandles(network, String(coin));
   },
 
   'asset:get': async ({ coin }) => {

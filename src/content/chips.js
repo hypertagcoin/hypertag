@@ -1,57 +1,15 @@
-// Finds $CASHTAGS in timeline posts and adds a live price + Long / Short chip
-// under the post text for every one that is listed on Hyperliquid.
+// Adds a live price + Long / Short chip under the post text for every $CASHTAG
+// listed on Hyperliquid, and keeps the action-bar Trade button in sync.
 import { change24h, fmtPct, fmtPx, fmtUsd, midOf, trend } from '../lib/format.js';
+import { syncTradeButton } from './actions.js';
 import { createHost, h } from './dom.js';
+import { chipAnchorFor, tickersIn, topLevelPosts } from './posts.js';
 import {
-  account, appState, marketFor, markets, positionFor, resolveSymbol,
+  account, appState, marketFor, markets, positionFor,
 } from './store.js';
 import { openTrade } from './trade.js';
 
-const CASHTAG_RE = /\$([A-Za-z][A-Za-z0-9]{0,9})(?![A-Za-z0-9])/g;
-const CASHTAG_TEXT_RE = /^\$[A-Za-z][A-Za-z0-9]{0,9}$/;
-const CASHTAG_LINK = 'a[href*="/search?q=%24"]';
-const EMBEDDED_POST = '[data-slot="embedded-tweet-frame"]';
-const MAX_PER_POST = 3;
 const live = new Set(); // { host, update }
-
-// X serves two layouts. The classic one labels posts with data-testid; the
-// newer one has no labels, posts are plain <article>s and quoted posts are
-// <article>s nested inside them. Work from structure that both share.
-function topLevelPosts() {
-  return [...document.querySelectorAll('article')].filter((a) => !a.parentElement?.closest('article'));
-}
-
-const ownedBy = (article, el) => el.closest('article') === article && !el.closest(EMBEDDED_POST);
-
-/** Where the chip row goes: right after the post text, else just above the action bar. */
-function anchorFor(article) {
-  const legacy = article.querySelector('[data-testid="tweetText"]');
-  if (legacy) return { el: legacy, after: true };
-  const link = [...article.querySelectorAll(CASHTAG_LINK)]
-    .find((a) => ownedBy(article, a) && CASHTAG_TEXT_RE.test(a.textContent.trim()));
-  const text = link?.closest('div[dir="auto"]');
-  if (text && ownedBy(article, text)) return { el: text, after: true };
-  const bar = [...article.querySelectorAll('[role="group"]')].find((g) => ownedBy(article, g));
-  return bar ? { el: bar, after: false } : null;
-}
-
-function tickersIn(article) {
-  const coins = [];
-  const add = (sym) => {
-    const m = resolveSymbol(sym);
-    if (m && !coins.includes(m.name)) coins.push(m.name);
-  };
-  for (const el of article.querySelectorAll('[data-testid="tweetText"]')) {
-    for (const [, sym] of el.textContent.matchAll(CASHTAG_RE)) add(sym);
-  }
-  // X links every cashtag in post text (including quoted posts). Its own price
-  // cards are links too, but their text isn't a bare "$TICKER", so they're skipped.
-  for (const a of article.querySelectorAll(CASHTAG_LINK)) {
-    const text = a.textContent.trim();
-    if (CASHTAG_TEXT_RE.test(text)) add(text.slice(1));
-  }
-  return coins.slice(0, MAX_PER_POST);
-}
 
 function buildChips(coins) {
   const { host, root } = createHost('chips');
@@ -87,14 +45,13 @@ function buildChips(coins) {
   return host;
 }
 
-function processArticle(article, enabled) {
+function syncChips(article, coins, enabled) {
   const existing = article.querySelector('tt-root[data-kind="chips"]');
-  const anchor = enabled ? anchorFor(article) : null;
+  const anchor = enabled ? chipAnchorFor(article) : null;
   if (!anchor) {
     existing?.remove();
     return;
   }
-  const coins = tickersIn(article);
   const key = coins.join(',');
   const inPlace = existing
     && (anchor.after ? existing.previousElementSibling === anchor.el : existing.nextElementSibling === anchor.el);
@@ -108,8 +65,12 @@ function processArticle(article, enabled) {
 
 function scan() {
   if (!markets.get().list.length) return;
-  const enabled = appState.get()?.settings?.showChips !== false;
-  for (const article of topLevelPosts()) processArticle(article, enabled);
+  const settings = appState.get()?.settings || {};
+  for (const article of topLevelPosts()) {
+    const coins = tickersIn(article);
+    syncChips(article, coins, settings.showChips !== false);
+    syncTradeButton(article, coins, settings.showTradeButton !== false);
+  }
   for (const entry of live) if (!entry.host.isConnected) live.delete(entry);
 }
 
@@ -137,7 +98,7 @@ export function startChips() {
     // Market list changed (first load / network switch): rebuild everything.
     if (snap.network !== network) {
       network = snap.network;
-      document.querySelectorAll('tt-root[data-kind="chips"]').forEach((el) => el.remove());
+      document.querySelectorAll('tt-root[data-kind="chips"], tt-root[data-kind="tradebtn"]').forEach((el) => el.remove());
       live.clear();
       scan();
     } else {

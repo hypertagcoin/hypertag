@@ -8,6 +8,8 @@ export const DEFAULT_SETTINGS = {
   slippage: 0.03,
   showChips: true,
   showSidebar: true,
+  showHoverCard: true,
+  showTradeButton: true,
 };
 
 export async function getSettings() {
@@ -23,6 +25,8 @@ export async function updateSettings(patch) {
   if (Number(patch.slippage) > 0 && Number(patch.slippage) <= 0.2) next.slippage = Number(patch.slippage);
   if (typeof patch.showChips === 'boolean') next.showChips = patch.showChips;
   if (typeof patch.showSidebar === 'boolean') next.showSidebar = patch.showSidebar;
+  if (typeof patch.showHoverCard === 'boolean') next.showHoverCard = patch.showHoverCard;
+  if (typeof patch.showTradeButton === 'boolean') next.showTradeButton = patch.showTradeButton;
   await chrome.storage.local.set({ settings: next });
   return next;
 }
