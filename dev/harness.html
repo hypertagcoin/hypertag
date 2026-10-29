@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hypertag dev harness</title>
+<!--
+  Design playground: a static page shaped like X's DOM with a mocked chrome.* API,
+  so the injected UI can be previewed without loading the extension.
+  Build first (npm run build), then open this file.
+  Query params: ?theme=light|dim|dark  ?connected=0
+-->
+<style>
+  :root { --bg: #000; --text: #e7e9ea; --text2: #71767b; --border: #2f3336; }
+  body.light { --bg: #fff; --text: #0f1419; --text2: #536471; --border: #eff3f4; }
+  body.dim { --bg: #15202b; --text: #f7f9f9; --text2: #8b98a5; --border: #38444d; }
+  html, body { margin: 0; }
+  body { font: 15px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text); }
+  .layout { display: flex; justify-content: center; gap: 30px; }
+  main { width: 600px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); min-height: 100vh; }
+  .tabsbar { height: 53px; display: flex; border-bottom: 1px solid var(--border); font-weight: 700; }
+  .tabsbar div { flex: 1; display: grid; place-items: center; color: var(--text2); }
+  .tabsbar div:first-child { color: var(--text); }
+  article { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  article:hover { background: rgba(127,127,127,.04); }
+  .av { width: 40px; height: 40px; border-radius: 50%; flex: none; }
+  .tw { flex: 1; min-width: 0; }
+  .who b { color: var(--text); } .who span { color: var(--text2); }
+  [data-testid="tweetText"] { margin-top: 2px; white-space: pre-wrap; }
+  [data-testid="tweetText"] a { color: rgb(29, 155, 240); text-decoration: none; }
+  [role="group"] { display: flex; justify-content: space-between; max-width: 425px; margin-top: 12px; color: var(--text2); font-size: 13px; }
+  [data-testid="sidebarColumn"] { width: 350px; padding-top: 6px; }
+  .search { height: 42px; border-radius: 9999px; border: 1px solid var(--border); margin-bottom: 16px; display: flex; align-items: center; padding: 0 16px; color: var(--text2); }
+  .box { border: 1px solid var(--border); border-radius: 16px; padding: 12px 16px; margin-bottom: 16px; }
+  .box h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; }
+  .trend { padding: 8px 0; } .trend small { display: block; color: var(--text2); font-size: 13px; }
+  #log { position: fixed; left: 8px; bottom: 8px; font: 12px monospace; color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <main>
+    <div class="tabsbar"><div>For you</div><div>Following</div></div>
+    <div id="timeline"></div>
+  </main>
+  <div data-testid="sidebarColumn">
+    <div><div>
+      <div class="search">Search</div>
+      <div>
+        <div><aside class="box"><h2>Subscribe to Premium</h2><p>Subscribe to unlock new features.</p></aside></div>
+        <div><section class="box"><h2>What’s happening</h2>
+          <div class="trend"><small>Business &amp; finance · Trending</small><b>$HYPE</b></div>
+          <div class="trend"><small>Trending in Crypto</small><b>Bitcoin</b></div>
+        </section></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+<div id="log"></div>
+
+<script>
+(() => {
+  const qs = new URLSearchParams(location.search);
+  const theme = qs.get('theme') || 'dark';
+  document.body.className = theme;
+  document.body.style.backgroundColor = { dark: 'rgb(0, 0, 0)', dim: 'rgb(21, 32, 43)', light: 'rgb(255, 255, 255)' }[theme];
+  let connected = qs.get('connected') !== '0';
+
+  const posts = [
+    ['Mona', '@monatrades', '#7856ff', 'Loading up on <a href="/search?q=%24BTC">$BTC</a> here. Weekly close above 80k and we go. <a href="/search?q=%24ETH">$ETH</a> lagging but will catch up.'],
+    ['Kai', '@kaicharts', '#00ba7c', '<a href="/search?q=%24HYPE">$HYPE</a> volume has been wild this week. Watching the 45 level.'],
+    ['Degen Dave', '@degendave', '#f91880', 'Frogs never die. <a href="/search?q=%24PEPE">$PEPE</a> <a href="/search?q=%24SOL">$SOL</a> <a href="/search?q=%24DOGE">$DOGE</a> <a href="/search?q=%24WIF">$WIF</a>'],
+    ['Jules', '@julesbuilds', '#536471', 'Coffee first, charts later. Spent $100 on dinner and regret nothing.'],
+  ];
+  const tl = document.getElementById('timeline');
+  for (const [name, handle, color, html] of posts) {
+    const a = document.createElement('article');
+    a.dataset.testid = 'tweet';
+    a.innerHTML = `<div class="av" style="background:${color}"></div><div class="tw"><div class="who"><b>${name}</b> <span>${handle} · 2h</span></div><div data-testid="tweetText">${html}</div><div role="group"><span>💬 12</span><span>🔁 48</span><span>♥ 310</span><span>📊 21K</span></div></div>`;
+    a.addEventListener('click', () => (document.getElementById('log').textContent = `article click leaked: ${handle}`));
+    tl.append(a);
+  }
+
+  const M = (name, index, szDecimals, maxLeverage, mid, prev, funding, oi, vol) => ({
+    name, index, szDecimals, maxLeverage, onlyIsolated: false, delisted: false, markPx: mid, midPx: mid, prevDayPx: prev, funding, openInterest: oi, dayNtlVlm: vol,
+  });
+  const markets = [
+    M('BTC', 0, 5, 40, 81637.5, 80535, 0.0000125, 43691, 2.7e9), M('ETH', 1, 4, 25, 3912.4, 3990.1, 0.00001, 512000, 1.4e9),
+    M('SOL', 5, 2, 20, 187.42, 179.8, 0.0000132, 3.1e6, 4.2e8), M('DOGE', 12, 0, 10, 0.19214, 0.1899, 0.00001, 6.2e8, 9e7),
+    M('kPEPE', 20, 0, 10, 0.009871, 0.010215, 0.0000081, 1.1e10, 5e7), M('HYPE', 159, 2, 10, 46.812, 44.03, 0.0000125, 2.4e7, 3.1e8),
+    M('WIF', 77, 0, 10, 0.8123, 0.7988, 0.00001, 4e7, 2e7),
+  ];
+  const acct = () => ({
+    user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', accountValue: 12450.32, withdrawable: 8120.55, spotUsdc: 0, totalMarginUsed: 4329.77,
+    unrealizedPnl: 412.18 - 38.4 + (Math.random() - 0.5),
+    positions: [
+      { coin: 'BTC', szi: 0.12, entryPx: 78210, positionValue: 9796, unrealizedPnl: 412.18, returnOnEquity: 0.2107, liquidationPx: 61230, leverage: { type: 'cross', value: 5 }, marginUsed: 1959 },
+      { coin: 'SOL', szi: -40, entryPx: 186.46, positionValue: 7497, unrealizedPnl: -38.4, returnOnEquity: -0.0515, liquidationPx: 241.9, leverage: { type: 'isolated', value: 10 }, marginUsed: 749 },
+    ],
+  });
+  const state = () => ({
+    network: 'mainnet', appUrl: 'https://app.hyperliquid.xyz', connected: { mainnet: connected, testnet: false },
+    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true },
+    connection: connected ? { user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', agentAddress: '0x1111111111111111111111111111111111111111', method: 'wallet', createdAt: Date.now() } : null,
+  });
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const handlers = {
+    'state:get': state,
+    'markets:get': () => ({ network: 'mainnet', at: Date.now(), markets: markets.map((m) => ({ ...m, midPx: +(m.midPx * (1 + (Math.random() - 0.5) * 0.0008)).toPrecision(5) })) }),
+    'account:get': () => (connected ? acct() : null),
+    'asset:get': ({ coin }) => ({ coin, leverage: { type: 'cross', value: 20 }, availableToTrade: [8120.55, 8120.55], maxTradeSzs: [1, 1] }),
+    'order:place': async (p) => { await wait(900); if (p.usd > 50000) throw new Error('Insufficient margin to place order.'); return { coin: p.coin, isBuy: p.isBuy, status: 'filled', totalSz: (p.usd / 81637).toFixed(5), avgPx: 81641 }; },
+    'position:close': async ({ coin }) => { await wait(700); return { coin, status: 'filled', avgPx: 81630 }; },
+    'connect:prepare': () => ({ typedData: { domain: {}, types: {}, message: {} }, network: 'mainnet' }),
+    'connect:finish': async () => { await wait(800); connected = true; return state(); },
+    'ui:consumeConnect': () => false,
+    'ui:openPopup': () => {},
+  };
+  const listeners = [];
+  Object.defineProperty(window, 'chrome', { configurable: true, writable: true, value: {
+    runtime: {
+      id: 'dev',
+      sendMessage: async ({ type, payload }) => {
+        try { return { ok: true, result: await handlers[type](payload || {}) }; } catch (e) { return { ok: false, error: e.message }; }
+      },
+      onMessage: { addListener: (f) => listeners.push(f) },
+    },
+    storage: { local: { set: async () => {}, get: async () => ({}) } },
+  } });
+
+  // A fake EIP-6963 wallet so the connect flow can be clicked through.
+  const provider = { request: async ({ method }) => {
+    await wait(500);
+    if (method === 'eth_requestAccounts') return ['0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B'];
+    if (method === 'eth_chainId') return '0xa4b1';
+    if (method === 'eth_signTypedData_v4') return '0x' + 'ab'.repeat(65);
+  } };
+  window.addEventListener('eip6963:requestProvider', () => window.dispatchEvent(new CustomEvent('eip6963:announceProvider', {
+    detail: Object.freeze({ info: { uuid: 'demo', name: 'Demo Wallet', icon: null, rdns: 'dev.demo' }, provider }),
+  })));
+})();
+</script>
+<script src="../dist/bridge.js"></script>
+<script src="../dist/content.js"></script>
+</body>
+</html>

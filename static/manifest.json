@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Hypertag: Trade Hyperliquid from X",
+  "short_name": "Hypertag",
+  "version": "1.0.1",
+  "description": "Long or short Hyperliquid perps from any $cashtag on X. Unofficial: not affiliated with X or Hyperliquid.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Hypertag",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.hyperliquid.xyz/*",
+    "https://api.hyperliquid-testnet.xyz/*",
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

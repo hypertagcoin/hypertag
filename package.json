@@ -1,0 +1,33 @@
+{
+  "name": "hypertag",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Chrome extension: long/short Hyperliquid perps straight from your X timeline.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "icons": "node scripts/make-icons.mjs",
+    "test": "node --test test/signing.test.mjs",
+    "package": "npm run build && node scripts/package.mjs",
+    "store-assets": "npm run build && node scripts/store-assets.mjs"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^3.0.0",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "puppeteer-core": "^25.16.0",
+    "sharp": "^0.35.5"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hypertagcoin/hypertag.git"
+  },
+  "homepage": "https://hypertag.trade",
+  "bugs": {
+    "url": "https://github.com/hypertagcoin/hypertag/issues"
+  }
+}

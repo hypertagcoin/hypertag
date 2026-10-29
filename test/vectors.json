@@ -1,0 +1,218 @@
+{
+ "agentKey": "0x0123456789012345678901234567890123456789012345678901234567890123",
+ "userKey": "0xabababababababababababababababababababababababababababababababab",
+ "l1": [
+  {
+   "name": "ioc",
+   "mainnet": true,
+   "nonce": 1677777606040,
+   "action": {
+    "type": "order",
+    "orders": [
+     {
+      "a": 4,
+      "b": true,
+      "p": "1670.1",
+      "s": "0.0147",
+      "r": false,
+      "t": {
+       "limit": {
+        "tif": "Ioc"
+       }
+      }
+     }
+    ],
+    "grouping": "na"
+   },
+   "hash": "0x0fcbeda5ae3c4950a548021552a4fea2226858c4453571bf3f24ba017eac2908",
+   "r": "0xe302c107c0048633293299b066317048f69f685aa4f536fe56c050efaf04996c",
+   "s": "0x70e01d4d26e3d724fb8f8ab54b3f2544a37ea1b092f83532349405274f3f3962",
+   "v": 28
+  },
+  {
+   "name": "ioc",
+   "mainnet": false,
+   "nonce": 1677777606040,
+   "action": {
+    "type": "order",
+    "orders": [
+     {
+      "a": 4,
+      "b": true,
+      "p": "1670.1",
+      "s": "0.0147",
+      "r": false,
+      "t": {
+       "limit": {
+        "tif": "Ioc"
+       }
+      }
+     }
+    ],
+    "grouping": "na"
+   },
+   "hash": "0x0fcbeda5ae3c4950a548021552a4fea2226858c4453571bf3f24ba017eac2908",
+   "r": "0x54d5cc489d4fa822a2788ecbdfe19d8dd478b9373cf0024b19aeb8452dc15474",
+   "s": "0xeef26897cba04c5670c683b27c3601deb3189295a5670dda0b7cb97efe1b860",
+   "v": 28
+  },
+  {
+   "name": "tpsl",
+   "mainnet": true,
+   "nonce": 1793289072799,
+   "action": {
+    "type": "order",
+    "orders": [
+     {
+      "a": 0,
+      "b": false,
+      "p": "81000",
+      "s": "0.00123",
+      "r": false,
+      "t": {
+       "limit": {
+        "tif": "Gtc"
+       }
+      }
+     },
+     {
+      "a": 0,
+      "b": true,
+      "p": "70200",
+      "s": "0.00123",
+      "r": true,
+      "t": {
+       "trigger": {
+        "isMarket": true,
+        "triggerPx": "78000",
+        "tpsl": "tp"
+       }
+      }
+     },
+     {
+      "a": 0,
+      "b": true,
+      "p": "92950",
+      "s": "0.00123",
+      "r": true,
+      "t": {
+       "trigger": {
+        "isMarket": true,
+        "triggerPx": "84500.5",
+        "tpsl": "sl"
+       }
+      }
+     }
+    ],
+    "grouping": "normalTpsl"
+   },
+   "hash": "0x991098feeddac5cafa24235965c5793ac3131d3439139e2eb3d8f78407aa14d3",
+   "r": "0x3c4f2bc2c07235422bf4d8526e42f2973c0d786a8edd7cd0a8c04f724ac94966",
+   "s": "0x5c73ad2a20f1dbd6d34549934b98407e38ec006d03b80750927ec647f33533a9",
+   "v": 27
+  },
+  {
+   "name": "tpsl",
+   "mainnet": false,
+   "nonce": 1793289072799,
+   "action": {
+    "type": "order",
+    "orders": [
+     {
+      "a": 0,
+      "b": false,
+      "p": "81000",
+      "s": "0.00123",
+      "r": false,
+      "t": {
+       "limit": {
+        "tif": "Gtc"
+       }
+      }
+     },
+     {
+      "a": 0,
+      "b": true,
+      "p": "70200",
+      "s": "0.00123",
+      "r": true,
+      "t": {
+       "trigger": {
+        "isMarket": true,
+        "triggerPx": "78000",
+        "tpsl": "tp"
+       }
+      }
+     },
+     {
+      "a": 0,
+      "b": true,
+      "p": "92950",
+      "s": "0.00123",
+      "r": true,
+      "t": {
+       "trigger": {
+        "isMarket": true,
+        "triggerPx": "84500.5",
+        "tpsl": "sl"
+       }
+      }
+     }
+    ],
+    "grouping": "normalTpsl"
+   },
+   "hash": "0x991098feeddac5cafa24235965c5793ac3131d3439139e2eb3d8f78407aa14d3",
+   "r": "0xb5644eebd4510df1ce52697447088ffcce32de6b943574c689d71f8966978e54",
+   "s": "0x3c1ea571c1f361ece092d99cc5c0d0ae5b1253af625ad7710a0293b2251f5483",
+   "v": 28
+  },
+  {
+   "name": "lev",
+   "mainnet": true,
+   "nonce": 1793289072800,
+   "action": {
+    "type": "updateLeverage",
+    "asset": 159,
+    "isCross": false,
+    "leverage": 7
+   },
+   "hash": "0x4922417d7d77ab54494d1627b641f88881201ce33a8841c67eded421e063ed39",
+   "r": "0xb9bc808b1728976e1b5515a4c7596f7d209f91a377d9b966331e9bb659f79bb0",
+   "s": "0x4c13e697439143a1512165752cd168588e2bebf7e9ea6b0aabc7bb7521bbf389",
+   "v": 27
+  },
+  {
+   "name": "lev",
+   "mainnet": false,
+   "nonce": 1793289072800,
+   "action": {
+    "type": "updateLeverage",
+    "asset": 159,
+    "isCross": false,
+    "leverage": 7
+   },
+   "hash": "0x4922417d7d77ab54494d1627b641f88881201ce33a8841c67eded421e063ed39",
+   "r": "0xb13148c45cc9970a3fdeaeddf1df4733ef3e2ad924548d352f9dd9ee10f66002",
+   "s": "0x43c573c655461762270e1207e65a6dc640e8b0ea3d73288093ee6c927aedfa34",
+   "v": 27
+  }
+ ],
+ "approve": {
+  "user": "0xe239cdc5fbe977a8a141B72194D3CF8c41bC5BC6",
+  "agent": "0x14791697260E4c9A71f18484C9f997B308e59325",
+  "nonce": 1793289072801,
+  "r": "0x2189dea4920b95e4c479a0a7312f3ecce8ed469f9612ec2c29348d12c0cd34a0",
+  "s": "0x6354e757a49c58bf1dad8f91950344a67527be39db5a896f26c327eead68df61",
+  "v": 28
+ },
+ "floats": {
+  "1670.1": "1670.1",
+  "100.0": "100",
+  "0.0147": "0.0147",
+  "81000": "81000",
+  "1.234e-05": "0.00001234",
+  "84500.5": "84500.5",
+  "1e-08": "0.00000001",
+  "123456.0": "123456"
+ }
+}

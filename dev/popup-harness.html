@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Popup dev harness</title>
+<!-- Preview of the extension popup with mocked chrome.* APIs. Build first. ?theme=light|dim|dark&connected=0 -->
+<base href="../dist/">
+<link rel="stylesheet" href="popup.css">
+<style>html { background: #333; } body { margin: 24px auto; outline: 1px solid #555; }</style>
+</head>
+<body>
+<header class="top">
+    <div class="brand">
+      <img src="icons/icon-32.png" width="24" height="24" alt="">
+      <span>Hypertag</span>
+    </div>
+    <div class="mini-seg" id="network" role="tablist" aria-label="Network">
+      <button data-net="mainnet" role="tab">Mainnet</button>
+      <button data-net="testnet" role="tab">Testnet</button>
+    </div>
+  </header>
+  <main id="app" aria-live="polite"></main>
+<script>
+(() => {
+  const qs = new URLSearchParams(location.search);
+  const theme = qs.get('theme') || 'dark';
+  let connected = qs.get('connected') !== '0';
+  const M = (name, index, szDecimals, maxLeverage, mid, prev, funding, oi, vol) => ({
+    name, index, szDecimals, maxLeverage, onlyIsolated: false, delisted: false, markPx: mid, midPx: mid, prevDayPx: prev, funding, openInterest: oi, dayNtlVlm: vol,
+  });
+  const markets = [
+    M('BTC', 0, 5, 40, 81637.5, 80535, 0.0000125, 43691, 2.7e9), M('ETH', 1, 4, 25, 3912.4, 3990.1, 0.00001, 512000, 1.4e9),
+    M('SOL', 5, 2, 20, 187.42, 179.8, 0.0000132, 3.1e6, 4.2e8), M('DOGE', 12, 0, 10, 0.19214, 0.1899, 0.00001, 6.2e8, 9e7),
+    M('kPEPE', 20, 0, 10, 0.009871, 0.010215, 0.0000081, 1.1e10, 5e7), M('HYPE', 159, 2, 10, 46.812, 44.03, 0.0000125, 2.4e7, 3.1e8),
+    M('WIF', 77, 0, 10, 0.8123, 0.7988, 0.00001, 4e7, 2e7),
+  ];
+  const acct = () => ({
+    user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', accountValue: 12450.32, withdrawable: 8120.55, spotUsdc: 0, totalMarginUsed: 4329.77,
+    unrealizedPnl: 412.18 - 38.4 + (Math.random() - 0.5),
+    positions: [
+      { coin: 'BTC', szi: 0.12, entryPx: 78210, positionValue: 9796, unrealizedPnl: 412.18, returnOnEquity: 0.2107, liquidationPx: 61230, leverage: { type: 'cross', value: 5 }, marginUsed: 1959 },
+      { coin: 'SOL', szi: -40, entryPx: 186.46, positionValue: 7497, unrealizedPnl: -38.4, returnOnEquity: -0.0515, liquidationPx: 241.9, leverage: { type: 'isolated', value: 10 }, marginUsed: 749 },
+    ],
+  });
+  const state = () => ({
+    network: 'mainnet', appUrl: 'https://app.hyperliquid.xyz', connected: { mainnet: connected, testnet: false },
+    settings: { network: 'mainnet', defaultUsd: 50, defaultLeverage: 5, slippage: 0.03, showChips: true, showSidebar: true },
+    connection: connected ? { user: '0x8a1C2b4E5d6F7a8B9c0D1e2F3a4B5c6D7e8F9a0B', agentAddress: '0x1111111111111111111111111111111111111111', method: 'wallet', createdAt: Date.now() } : null,
+  });
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const handlers = {
+    'state:get': state,
+    'markets:get': () => ({ network: 'mainnet', at: Date.now(), markets: markets.map((m) => ({ ...m, midPx: +(m.midPx * (1 + (Math.random() - 0.5) * 0.0008)).toPrecision(5) })) }),
+    'account:get': () => (connected ? acct() : null),
+    'asset:get': ({ coin }) => ({ coin, leverage: { type: 'cross', value: 20 }, availableToTrade: [8120.55, 8120.55], maxTradeSzs: [1, 1] }),
+    'order:place': async (p) => { await wait(900); if (p.usd > 50000) throw new Error('Insufficient margin to place order.'); return { coin: p.coin, isBuy: p.isBuy, status: 'filled', totalSz: (p.usd / 81637).toFixed(5), avgPx: 81641 }; },
+    'position:close': async ({ coin }) => { await wait(700); return { coin, status: 'filled', avgPx: 81630 }; },
+    'connect:prepare': () => ({ typedData: { domain: {}, types: {}, message: {} }, network: 'mainnet' }),
+    'connect:finish': async () => { await wait(800); connected = true; return state(); },
+    'ui:consumeConnect': () => false,
+    'ui:openPopup': () => {},
+  };
+  const listeners = [];
+  Object.defineProperty(window, 'chrome', { configurable: true, writable: true, value: {
+    runtime: {
+      id: 'dev',
+      sendMessage: async ({ type, payload }) => {
+        try { return { ok: true, result: await handlers[type](payload || {}) }; } catch (e) { return { ok: false, error: e.message }; }
+      },
+      onMessage: { addListener: (f) => listeners.push(f) },
+    },
+    storage: { local: { set: async () => {}, get: async () => ({ xTheme: { theme } }) } },
+    tabs: { query: async () => [], sendMessage: async () => {}, create: async () => {}, reload: async () => {} },
+  } });
+
+  Object.assign(handlers, {
+    'settings:set': (p) => { const s = state(); Object.assign(s.settings, p); return s; },
+    'disconnect': () => { connected = false; return state(); },
+    'key:import': async () => { await wait(600); throw new Error('This key is not an approved API wallet on mainnet.'); },
+  });
+})();
+</script>
+<script src="popup.js"></script>
+</body>
+</html>
